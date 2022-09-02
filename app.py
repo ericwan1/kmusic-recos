@@ -8,8 +8,10 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 
-client_id = ''
-client_secret = ''
+from api_access import sp_client_id, sp_client_secret
+
+client_id = sp_client_id
+client_secret = sp_client_secret
 
 client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -43,12 +45,10 @@ if __name__ == '__main__':
 @app.route("/", methods=['GET', 'POST'])
 def main():
     if request.method == 'POST':
-        # Unpickle classifier
-        clf = joblib.load("nnbs.pkl")
         
         # Get values through input bars
         spotify_input = request.form.get("inputURL")
-
+        print(spotify_input)
         # Sample song link, from mac client:
         # https://open.spotify.com/track/2oBMZYteeO8DyXV9gDx6Za?si=1ec2215522d64bc1
         # Sample possible link from web browser:
@@ -58,9 +58,11 @@ def main():
             sbstr_1 = spotify_input.split("/track/")[1]
             if '?' in sbstr_1:
                 sp_pass_id = sbstr_1.split("?")[0].strip()
+                user_input_track_title = sp.track(sp_pass_id)['name']
                 proceed_check = True
             else:
                 sp_pass_id = sbstr_1.strip()
+                user_input_track_title = sp.track(sp_pass_id)['name']
                 proceed_check = True
         except:
             print("invalid url - try copying the link directly from Spotify!")
@@ -81,7 +83,7 @@ def main():
                                                 'liveness',
                                                 'valence',
                                                 'tempo']]
-            track_audio_only['Track_Title'] = str(sp.track(track_features_df.iloc[0]['id'])['name'])
+            track_audio_only['Track_Title'] = user_input_track_title
             track_audio_only.set_index('Track_Title', inplace = True)
 
             # Currently the shape is:
@@ -105,17 +107,23 @@ def main():
             # Retrieving Track URLs from the data
             # This step is necessary to create our dictionary to match up tracks and artists
             # Adding artists to the final dataframe
-            kmusic_nn_output['Track_Id'] = list(data[['Track_Id']]).append(spotify_input)
+            temp_track_id_list = data['Track_Id'].tolist()
+            temp_track_id_list.append(spotify_input)
+            kmusic_nn_output['Track_Id'] = temp_track_id_list
             # Getting user submitted artist information for incorporation into final dataframe
             # This step is necessary to create our dictionary to match up tracks and artists
             user_submitted_track_info_dict = sp.track(track_features_df.iloc[0]['id'])['artists'][0]
             user_submitted_artist_name = user_submitted_track_info_dict['name']
             user_submitted_artist_link = user_submitted_track_info_dict['external_urls']['spotify']
             # Adding artist names to the final dataframe
-            kmusic_nn_output['Artist'] = list(data[['Artist']]).append(user_submitted_artist_name)
+            temp_artist_name_list = data['Artist'].tolist()
+            temp_artist_name_list.append(user_submitted_artist_name)
+            kmusic_nn_output['Artist'] = temp_artist_name_list
             # Adding Artist Ids to the final dataframe
-            kmusic_nn_output['Artist_Id'] = list(data[['Artist_Id']]).append(user_submitted_artist_link)
-            
+            temp_artist_id_list = data['Artist_Id'].tolist()
+            temp_artist_id_list.append(user_submitted_artist_link)
+            kmusic_nn_output['Artist_Id'] = temp_artist_id_list
+
             # Assembling dictionary for id - artist/track lookup for use in final recommendations
             keys = list(kmusic_nn_output.index)
             values = list(zip(kmusic_nn_output.Track_Title
@@ -124,22 +132,30 @@ def main():
                             , kmusic_nn_output.Artist_Id))
             t_id_t_title_dict = dict(zip(keys, values))
 
+            # For sanity check - this should be the user inputted song/artist information
             preds_row = kmusic_nn_output.iloc[len(data)]
+
+            zipped_list = []
 
             for i in range(1,11):
                 song_index = preds_row[i]
-                recc_song_track_title = t_id_t_title_dict.get(song_index)[0]
-                recc_song_track_id = t_id_t_title_dict.get(song_index)[1]
-                recc_song_artist_name = t_id_t_title_dict.get(song_index)[2]
-                recc_song_artist_id = t_id_t_title_dict.get(song_index)[3]
+                # print(t_id_t_title_dict.get(song_index))
+                temp_song_dict = {'rec_order': i
+                                , 'track_title': t_id_t_title_dict.get(song_index)[0]
+                                , 'track_id': t_id_t_title_dict.get(song_index)[1]
+                                , 'artist_name': t_id_t_title_dict.get(song_index)[2]
+                                , 'artist_id': t_id_t_title_dict.get(song_index)[3]}
+                zipped_list.append(temp_song_dict)
 
-            
-            # Figure what to do with outputs once you get there by fixing the html first
+            # Return predictions
+            return render_template("website_output.html"
+                                    , user_submitted_song_title = user_input_track_title
+                                    , user_submitted_song_artist = user_submitted_artist_name
+                                    , passed_zip_list = zipped_list)
 
-            predictions = "so far so good"
-
-        # Return predictions
-        return render_template("website.html", output = recc_song_track_title)
+        else:
+            prediction = "Enter a song link from Spotify!"
+            return render_template("website_query_error.html", output = prediction)
 
     else:
         # This is the default, as the default route is 'GET'
