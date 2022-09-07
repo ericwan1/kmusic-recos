@@ -52,4 +52,4 @@ Currently a Work in Progress.
     * `time_signature` (Time Signature, 3 to 7 for 3/4 to 7/4)
 
 ### To Do:
-- Complete recommendation engine
+- Host everything on a server and make the website interactable to the world
