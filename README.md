@@ -1,6 +1,6 @@
 # kmusic-recos
 
-When I first began working on this project I wanted to see if there were any commonalities between my favorite artists and songs within k-pop. The scope slowly grew bigger and bigger over the months. Now, not only has data been scraped and a recommender system built, but a micro framework using flask has also been constructed for users to interact with the recommender engine. 
+When I first began working on this project I wanted to see if there were any commonalities between my favorite artists and songs within k-pop. The scope slowly grew bigger and bigger over the months. Now, not only has data been scraped and a recommender system built, but a micro framework using flask has also been constructed for users to interact with the recommender engine. Future goals for this project include hosting everything in the cloud and scheduling regular scraping of Spotify to ensure data contained within the recommender engine is up to date. 
 
 ### How to Use This Repo
 
@@ -10,6 +10,10 @@ In order to run the "website" on your end, see the following steps:
 3. Run `export FLASK_APP=app` or `set FLASK_APP=app` if you are using the latter.
 4. Then run `flask run`. 
 5. Following the output from step 4, you will notice that the framework is most likely running on the default port (5000). Follow the url provided `http://127.0.0.1:5000` and you can begin playing around with the site!
+
+### Some Details
+- The model uses nearest neighbors. Scraping was done using the Spotipy API, and a basic analysis notebook is also [included](https://github.com/ericwan1/kmusic-recos/blob/main/recc_eda.ipynb).
+- Flask was selected due to ease of set up, features, and easy integration with the code I already wrote.
 
 ### Data Dictionary
 
