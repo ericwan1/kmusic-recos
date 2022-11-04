@@ -4,7 +4,12 @@ When I first began working on this project I wanted to see if there were any com
 
 ### How to Use This Repo
 
-In order to run the "website" on your end, make sure to run `python app.py` and then, in a webbrowser, go to the url found in the output from terminal or command prompt. The default port is 5000 and so the link would be `http://127.0.0.1:5000`. 
+In order to run the "website" on your end, see the following steps:
+1. First clone the repo to a desired location: `git clone https://github.com/ericwan1/kmusic-recos.git`
+2. Open terminal or command prompt and navigate to the repository. 
+3. Run `export FLASK_APP=app` or `set FLASK_APP=app` if you are using the latter.
+4. Then run `flask run`. 
+5. Following the output from step 4, you will notice that the framework is most likely running on the default port (5000). Follow the url provided `http://127.0.0.1:5000` and you can begin playing around with the site!
 
 ### Data Dictionary
 
