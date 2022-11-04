@@ -1,6 +1,10 @@
 # kmusic-recos
 
-Currently a Work in Progress.
+When I first began working on this project I wanted to see if there were any commonalities between my favorite artists and songs within k-pop. The scope slowly grew bigger and bigger over the months. Now, not only has data been scraped and a recommender system built, but a micro framework using flask has also been constructed for users to interact with the recommender engine. 
+
+### How to Use This Repo
+
+In order to run the "website" on your end, make sure to run `python app.py` and then, in a webbrowser, go to the url found in the output from terminal or command prompt. The default port is 5000 and so the link would be `http://127.0.0.1:5000`. 
 
 ### Data Dictionary
 
@@ -51,5 +55,6 @@ Currently a Work in Progress.
     * `duration_ms` (Track Duration in Milliseconds)
     * `time_signature` (Time Signature, 3 to 7 for 3/4 to 7/4)
 
-### To Do:
+### Future To Do's:
 - Host everything on a server and make the website interactable to the world
+- Automate the scraping notebook and orchestrate runs; potentially store and run everything in the cloud
